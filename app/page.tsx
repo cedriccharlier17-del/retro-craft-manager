@@ -148,6 +148,19 @@ useEffect(() => {
           <div className="search">
             <Search size={17} />
             <input placeholder="Rechercher un item..." />
+         <div className="craftList">
+  {crafts.length === 0 ? (
+    <p>Aucun craft en cours</p>
+  ) : (
+    crafts.map((craft, index) => (
+      <div className="craftRow" key={index}>
+        <strong>{craft.name}</strong>
+        <span>× {craft.qty}</span>
+        <span>{craft.status}</span>
+      </div>
+    ))
+  )}
+</div>
           </div>
         </div>
 
