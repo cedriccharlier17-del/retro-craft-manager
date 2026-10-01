@@ -21,6 +21,9 @@ const supabase = createClient();
 const [crafts, setCrafts] = useState<
   { name: string; qty: number; status: string; progress: number }[]
 >([]);
+  const [missingResources, setMissingResources] = useState<
+  { name: string; qty: number }[]
+>([]);
 async function loadCrafts() {
   const { data, error } = await supabase
     .from('crafts')
