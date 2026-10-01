@@ -79,6 +79,7 @@ async function loadCrafts() {
 
 useEffect(() => {
   loadCrafts();
+  loadMissingResources();
 }, []);
   function goToNewCraft() {
     const section = document.getElementById("new-craft");
@@ -89,7 +90,48 @@ useEffect(() => {
       input?.focus();
     }, 400);
   }
+ async function loadMissingResources() {
+  const { data, error } = await supabase
+    .from('crafts')
+    .select(`
+      quantity,
+      items (
+        recipes (
+          quantity,
+          resources (
+            name
+          )
+        )
+      )
+    `)
+    .eq('workspace_id', '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e')
+    .eq('status', 'a_craft');
 
+  if (error) {
+    console.error('Erreur ressources:', error);
+    return;
+  }
+
+  const totals = new Map<string, number>();
+
+  (data ?? []).forEach((craft: any) => {
+    const recipes = craft.items?.recipes ?? [];
+
+    recipes.forEach((recipe: any) => {
+      const name = recipe.resources?.name;
+      if (!name) return;
+
+      const needed = recipe.quantity * craft.quantity;
+      totals.set(name, (totals.get(name) ?? 0) + needed);
+    });
+  });
+
+  setMissingResources(
+    Array.from(totals.entries())
+      .map(([name, qty]) => ({ name, qty }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+  );
+}
   return (
     <main>
       <aside className="sidebar">
@@ -216,21 +258,16 @@ useEffect(() => {
             <h2>Ressources manquantes</h2>
             <p className="muted">Regroupées pour tous les crafts actifs</p>
 
-            <div className="missing">
-              <b>Étoffe de Maître Pandore</b>
-              <span>17 à acheter</span>
-            </div>
-
-            <div className="missing">
-              <b>Étoffe de Péki</b>
-              <span>8 à acheter</span>
-            </div>
-
-            <div className="missing">
-              <b>Étoffe de Meulou</b>
-              <span>31 à acheter</span>
-            </div>
-          </div>
+        {missingResources.length === 0 ? (
+  <p className="muted">Aucune ressource à acheter.</p>
+) : (
+  missingResources.map((resource) => (
+    <div className="missing" key={resource.name}>
+      <b>{resource.name}</b>
+      <span>{resource.qty} à acheter</span>
+    </div>
+  ))
+)}
 
           <div className="panel" id="new-craft">
             <h2>Recherche Dofus Rétro</h2>
@@ -239,7 +276,12 @@ useEffect(() => {
               Recherche réelle dans la base Dofus Rétro 1.29.
             </p>
 
-           <ItemSearch onCraftAdded={loadCrafts} />
+          <ItemSearch
+  onCraftAdded={() => {
+    loadCrafts();
+    loadMissingResources();
+  }}
+/>
           </div>
         </div>
       </section>
