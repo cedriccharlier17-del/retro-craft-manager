@@ -268,7 +268,7 @@ useEffect(() => {
     </div>
   ))
 )}
-
+</div>
           <div className="panel" id="new-craft">
             <h2>Recherche Dofus Rétro</h2>
 
