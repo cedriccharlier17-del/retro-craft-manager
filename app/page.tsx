@@ -148,7 +148,7 @@ useEffect(() => {
         <nav>
           <a className="active">Dashboard</a>
           <a>🛠️ Crafts</a>
-          <a>📦 Stock</a>
+          <a href="/stock">📦 Stock</a>
           <a>🛒 Achats</a>
           <a>💰 Rentabilité</a>
           <a>✨ FM</a>
