@@ -9,7 +9,7 @@ function normalize(value:string){
  return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').replace(/[’']/g,"'").trim();
 }
 
-export default function ItemSearch(){
+export default function ItemSearch({ onCraftAdded }: { onCraftAdded?: () => void }) {
 const supabase = createClient();
 const workspaceId = '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e';
  const [items,setItems]=useState<Item[]>([]),[q,setQ]=useState(''),[selected,setSelected]=useState<Detail|null>(null),[qty,setQty]=useState(1),[loading,setLoading]=useState(false),[catalogLoading,setCatalogLoading]=useState(true),[error,setError]=useState('');
@@ -56,7 +56,7 @@ const workspaceId = '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e';
       });
 
     if (craftError) throw craftError;
-
+    onCraftAdded?.();
     alert(`${selected.name} ajouté aux crafts !`);
   } catch (e) {
     setError(
