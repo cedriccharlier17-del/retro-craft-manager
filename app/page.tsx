@@ -73,58 +73,6 @@ async function loadCrafts() {
 
   setCrafts(Array.from(grouped.values()));
 }
-async function loadCrafts() {
-  const { data, error } = await supabase
-    .from('crafts')
-    .select(`
-      id,
-      quantity,
-      status,
-      items (
-        name
-      )
-    `)
-    .eq('workspace_id', '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Erreur chargement crafts:', error);
-    return;
-  }
-
-  const grouped = new Map<
-    string,
-    { name: string; qty: number; status: string; progress: number }
-  >();
-
-  (data ?? []).forEach((craft: any) => {
-    const name = craft.items?.name ?? 'Objet inconnu';
-
-    const status =
-      craft.status === 'a_craft'
-        ? 'À craft'
-        : craft.status === 'fm'
-        ? 'En FM'
-        : craft.status;
-
-    const key = `${name}-${status}`;
-
-    const existing = grouped.get(key);
-
-    if (existing) {
-      existing.qty += craft.quantity;
-    } else {
-      grouped.set(key, {
-        name,
-        qty: craft.quantity,
-        status,
-        progress: 0,
-      });
-    }
-  });
-
-  setCrafts(Array.from(grouped.values()));
-}
 
 useEffect(() => {
   loadCrafts();
