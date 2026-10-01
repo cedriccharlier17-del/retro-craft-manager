@@ -236,7 +236,7 @@ useEffect(() => {
               Recherche réelle dans la base Dofus Rétro 1.29.
             </p>
 
-            <ItemSearch />
+           <ItemSearch onCraftAdded={loadCrafts} />
           </div>
         </div>
       </section>
