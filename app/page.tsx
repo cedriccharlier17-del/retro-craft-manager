@@ -6,18 +6,57 @@ import {
   Coins,
   Search,
   Plus,
+  import { useEffect, useState } from 'react';
 } from "lucide-react";
 
 import "./globals.css";
 import ItemSearch from "./components/ItemSearch";
-
-const crafts = [
-  { name: "Voile d'Encre", qty: 3, status: "À craft", progress: 82 },
-  { name: "Kralano", qty: 2, status: "En FM", progress: 100 },
-  { name: "Annolamour", qty: 4, status: "À craft", progress: 61 },
-];
+import { createClient } from "../lib/supabase/client";
 
 export default function Home() {
+const supabase = createClient();
+
+const [crafts, setCrafts] = useState<
+  { name: string; qty: number; status: string; progress: number }[]
+>([]);
+
+useEffect(() => {
+  async function loadCrafts() {
+    const { data, error } = await supabase
+      .from('crafts')
+      .select(`
+        id,
+        quantity,
+        status,
+        items (
+          name
+        )
+      `)
+      .eq('workspace_id', '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Erreur chargement crafts:', error);
+      return;
+    }
+
+    const formatted = (data ?? []).map((craft: any) => ({
+      name: craft.items?.name ?? 'Objet inconnu',
+      qty: craft.quantity,
+      status:
+        craft.status === 'a_craft'
+          ? 'À craft'
+          : craft.status === 'fm'
+          ? 'En FM'
+          : craft.status,
+      progress: 0,
+    }));
+
+    setCrafts(formatted);
+  }
+
+  loadCrafts();
+}, []);
   function goToNewCraft() {
     const section = document.getElementById("new-craft");
     section?.scrollIntoView({ behavior: "smooth", block: "start" });
