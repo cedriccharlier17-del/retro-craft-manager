@@ -1,4 +1,7 @@
 'use client';
+
+import { useEffect, useState } from 'react';
+
 import {
   Hammer,
   Package,
@@ -6,7 +9,6 @@ import {
   Coins,
   Search,
   Plus,
-  import { useEffect, useState } from 'react';
 } from "lucide-react";
 
 import "./globals.css";
