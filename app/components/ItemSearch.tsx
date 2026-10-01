@@ -44,7 +44,37 @@ const workspaceId = '7f9b2fcc-9fda-4734-b5d6-3bc9c410ed5e';
       .single();
 
     if (itemError) throw itemError;
+    // Enregistrer les ressources et la recette de l'objet
+if (selected.recipe && selected.recipe.length > 0) {
+  for (const ingredient of selected.recipe) {
+    const { data: resource, error: resourceError } = await supabase
+      .from('resources')
+      .upsert(
+        {
+          retro_id: ingredient.item_id,
+          name: ingredient.name
+        },
+        { onConflict: 'retro_id' }
+      )
+      .select('id')
+      .single();
 
+    if (resourceError) throw resourceError;
+
+    const { error: recipeError } = await supabase
+      .from('recipes')
+      .upsert(
+        {
+          item_id: item.id,
+          resource_id: resource.id,
+          quantity: ingredient.qty
+        },
+        { onConflict: 'item_id,resource_id' }
+      );
+
+    if (recipeError) throw recipeError;
+  }
+}
     const { error: craftError } = await supabase
       .from('crafts')
       .insert({
