@@ -42,18 +42,38 @@ useEffect(() => {
       return;
     }
 
-    const formatted = (data ?? []).map((craft: any) => ({
-      name: craft.items?.name ?? 'Objet inconnu',
-      qty: craft.quantity,
-      status:
-        craft.status === 'a_craft'
-          ? 'À craft'
-          : craft.status === 'fm'
-          ? 'En FM'
-          : craft.status,
-      progress: 0,
-    }));
+const grouped = new Map<
+  string,
+  { name: string; qty: number; status: string; progress: number }
+>();
 
+(data ?? []).forEach((craft: any) => {
+  const name = craft.items?.name ?? 'Objet inconnu';
+
+  const status =
+    craft.status === 'a_craft'
+      ? 'À craft'
+      : craft.status === 'fm'
+      ? 'En FM'
+      : craft.status;
+
+  const key = `${name}-${status}`;
+
+  const existing = grouped.get(key);
+
+  if (existing) {
+    existing.qty += craft.quantity;
+  } else {
+    grouped.set(key, {
+      name,
+      qty: craft.quantity,
+      status,
+      progress: 0,
+    });
+  }
+});
+
+const formatted = Array.from(grouped.values());
     setCrafts(formatted);
   }
 
